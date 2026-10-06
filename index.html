@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рассчет стоимости потолка в Казани</title>
+    <style>
+        :root { --bg: #0d0e12; --card: #161822; --accent: #00f2fe; --text: #ffffff; }
+        body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .quiz-container { background: var(--card); padding: 30px; border-radius: 16px; max-width: 500px; width: 100%; box-shadow: 0 10px 30px rgba(0,242,254,0.1); border: 1px solid #23263a; }
+        h2 { font-size: 20px; margin-top: 0; color: var(--accent); }
+        .step { display: none; } .step.active { display: block; }
+        .options { display: grid; gap: 12px; margin: 20px 0; }
+        .btn-opt { background: #1f2235; border: 1px solid #383c5a; color: #fff; padding: 14px; border-radius: 8px; cursor: pointer; text-align: left; font-size: 15px; transition: 0.2s; }
+        .btn-opt:hover { border-color: var(--accent); background: #252942; }
+        input[type="text"], input[type="tel"] { width: 100%; padding: 14px; background: #1f2235; border: 1px solid #383c5a; border-radius: 8px; color: #fff; box-sizing: border-box; font-size: 16px; margin-bottom: 15px; }
+        input:focus { border-color: var(--accent); outline: none; }
+        .btn-next { background: var(--accent); color: #000; border: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; }
+        .progress { height: 4px; background: #23263a; border-radius: 2px; margin-bottom: 20px; }
+        .progress-bar { height: 100%; background: var(--accent); width: 25%; transition: 0.3s; border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="progress"><div class="progress-bar" id="progress"></div></div>
+    
+    <!-- Шаг 1 -->
+    <div class="step active" id="step1">
+        <h2>1. Какой тип помещения?</h2>
+        <div class="options">
+            <button class="btn-opt" onclick="nextStep(1, 'Новостройка')">Новостройка (ЖК в Казани)</button>
+            <button class="btn-opt" onclick="nextStep(1, 'Вторичное жилье')">Вторичное жилье / Хрущевка</button>
+            <button class="btn-opt" onclick="nextStep(1, 'Коттедж / Частный дом')">Коттедж / Пригород</button>
+        </div>
+    </div>
+
+    <!-- Шаг 2 -->
+    <div class="step" id="step2">
+        <h2>2. Какое освещение планируете?</h2>
+        <div class="options">
+            <button class="btn-opt" onclick="nextStep(2, 'Световые линии / Треки')">Световые линии / Теневые треки (Премиум)</button>
+            <button class="btn-opt" onclick="nextStep(2, 'Классика (Люстра + споты)')">Классика (Люстра + споты)</button>
+            <button class="btn-opt" onclick="nextStep(2, 'Пока не знаю, нужна консультация')">Пока не знаю, нужна консультация</button>
+        </div>
+    </div>
+
+    <!-- Шаг 3 -->
+    <div class="step" id="step3">
+        <h2>3. Примерная площадь потолка?</h2>
+        <div class="options">
+            <button class="btn-opt" onclick="nextStep(3, 'До 30 кв.м.')">До 30 кв.м. (1-комнатная или санузлы)</button>
+            <button class="btn-opt" onclick="nextStep(3, '30 - 70 кв.м.')">30 - 70 кв.м. (2-3 комнатная)</button>
+            <button class="btn-opt" onclick="nextStep(3, 'Более 70 кв.м.')">Более 70 кв.м. (Большая квартира / дом)</button>
+        </div>
+    </div>
+
+    <!-- Шаг 4: Форма контактов -->
+    <div class="step" id="step4">
+        <h2>Расчет готов! Куда прислать смету со скидкой 15%?</h2>
+        <input type="text" id="userName" placeholder="Ваше имя" required>
+        <input type="tel" id="userPhone" placeholder="+7 (999) 000-00-00" required>
+        <button class="btn-next" onclick="sendLeads()">Получить расчет стоимости</button>
+    </div>
+</div>
+
+<script>
+    let answers = {};
+    
+    function nextStep(current, answer) {
+        answers['Шаг ' + current] = answer;
+        document.getElementById('step' + current).classList.remove('active');
+        const next = current + 1;
+        document.getElementById('step' + next).classList.add('active');
+        document.getElementById('progress').style.width = (next * 25) + '%';
+    }
+
+    async function sendLeads() {
+        const name = document.getElementById('userName').value;
+        const phone = document.getElementById('userPhone').value;
+        
+        if(!name || !phone) { alert('Пожалуйста, заполните поля'); return; }
+
+        // НАСТРОЙКА TELEGRAM (Замени своими данными)
+        const BOT_TOKEN = 'ТВОЙ_ТОКЕН_БОТА'; 
+        const CHAT_ID = 'ТВОЙ_ID_ЧАТА'; 
+        
+        const message = `🔥 Новая заявка (Потолки Казань):\n👤 Имя: ${name}\n📞 Тел: ${phone}\n🏢 Тип: ${answers['Шаг 1']}\n💡 Свет: ${answers['Шаг 2']}\n📐 Площадь: ${answers['Шаг 3']}`;
+
+        const url = `https://telegram.org{BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
+        
+        try {
+            await fetch(url);
+            alert('Спасибо! Данные приняты, технолог свяжется с вами для расчета.');
+            location.reload();
+        } catch (e) {
+            alert('Ошибка отправки. Попробуйте еще раз.');
+        }
+    }
+</script>
+</body>
+</html>
