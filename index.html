@@ -59,8 +59,7 @@
     <div class="step" id="step4">
         <h2>Расчет готов! Куда прислать смету со скидкой 15%?</h2>
         <input type="text" id="userName" placeholder="Ваше имя" required>
-        <!-- Упрощенное поле: разрешает вводить только цифры, знаки плюс, минус и скобки -->
-        <input type="tel" id="userPhone" placeholder="+7 (999) 000-00-00" pattern="^[0-9\-\+\(\)\s]{10,18}\$" required>
+        <input type="tel" id="userPhone" placeholder="Ваш номер телефона" required>
         <button class="btn-next" onclick="sendLeads()">Получить расчет стоимости</button>
     </div>
 </div>
@@ -83,12 +82,6 @@
         if (!name || !phone) { 
             alert('Пожалуйста, заполните все поля'); 
             return; 
-        }
-
-        // Базовая проверка: отсекаем слишком короткие фейковые номера (меньше 10 символов)
-        if (phone.replace(/\D/g, "").length < 10) {
-            alert('Пожалуйста, введите корректный номер телефона');
-            return;
         }
 
         const BOT_TOKEN = '8687633985:AAHN4HtQ4vqYLfA6JYqQIGOVA2WNR1YtFV8'; 
