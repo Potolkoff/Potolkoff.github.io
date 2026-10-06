@@ -55,7 +55,7 @@
         </div>
     </div>
 
-    <!-- Шаг 4: Форма контактов -->
+    <!-- Шаг 4 -->
     <div class="step" id="step4">
         <h2>Расчет готов! Куда прислать смету со скидкой 15%?</h2>
         <input type="text" id="userName" placeholder="Ваше имя" required>
@@ -84,19 +84,31 @@
             return; 
         }
 
-        const BOT_TOKEN = '8687633985:AAHN4HtQ4vqYLfA6JYqQIGOVA2WNR1YtFV8'; 
-        const CHAT_ID = '1246645117'; 
+        const FORMSPREE_URL = 'https://formspree.io/f/xdeaaolk'; 
         
-        const message = `🔥 Новая заявка (Потолки Казань):\n👤 Имя: ${name}\n📞 Тел: ${phone}\n🏢 Тип: ${answers['Шаг 1']}\n💡 Свет: ${answers['Шаг 2']}\n📐 Площадь: ${answers['Шаг 3']}`;
-
-        const url = `https://telegram.org{BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
+        const formData = {
+            Name: name,
+            Phone: phone,
+            Type: answers['Шаг 1'],
+            Light: answers['Шаг 2'],
+            Area: answers['Шаг 3']
+        };
         
         try {
-            await fetch(url);
-            alert('Спасибо! Данные приняты, технолог свяжется с вами для расчета.');
-            location.reload();
+            const response = await fetch(FORMSPREE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            
+            if (response.ok) {
+                alert('Спасибо! Данные приняты, технолог свяжется с вами для расчета.');
+                location.reload();
+            } else {
+                alert('Ошибка отправки через шлюз. Попробуйте еще раз.');
+            }
         } catch (e) {
-            alert('Ошибка отправки. Попробуйте еще раз.');
+            alert('Ошибка сети. Попробуйте еще раз.');
         }
     }
 </script>
