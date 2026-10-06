@@ -95,18 +95,18 @@
         const phone = document.getElementById('userPhone').value;
         const errorBlock = document.getElementById('errorBlock');
         
-        // Очищаем номер от маски до чистых цифр, чтобы проверить валидность
+        // Очищаем номер от маски до чистых цифр
         const cleanPhone = phone.replace(/\D/g, ""); 
         
-        // Регулярное выражение: проверяет, что цифр ровно 11, первая 7, а вторая НЕ 0, 1, 2, 5 (защита от фейков)
-        const phoneRegex = /^7[3489]\d{9}\$/;
+        // Исправлено: проверяем, что в номере ровно 11 цифр и он начинается с 7
+        const isValidPhone = cleanPhone.length === 11 && cleanPhone.startsWith('7');
 
         if (!name) { 
             alert('Пожалуйста, введите ваше имя'); 
             return; 
         }
 
-        if (!phoneRegex.test(cleanPhone)) {
+        if (!isValidPhone) {
             errorBlock.style.display = 'block';
             phoneInput.style.borderColor = '#ff4a4a';
             return;
