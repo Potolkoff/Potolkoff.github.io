@@ -18,7 +18,6 @@
         .btn-next { background: var(--accent); color: #000; border: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; }
         .progress { height: 4px; background: #23263a; border-radius: 2px; margin-bottom: 20px; }
         .progress-bar { height: 100%; background: var(--accent); width: 25%; transition: 0.3s; border-radius: 2px; }
-        .error-msg { color: #ff4a4a; font-size: 14px; margin-top: -10px; margin-bottom: 15px; display: none; }
     </style>
 </head>
 <body>
@@ -60,8 +59,8 @@
     <div class="step" id="step4">
         <h2>Расчет готов! Куда прислать смету со скидкой 15%?</h2>
         <input type="text" id="userName" placeholder="Ваше имя" required>
-        <input type="tel" id="userPhone" placeholder="+7 (999) 000-00-00" maxlength="18" required>
-        <div class="error-msg" id="errorBlock">Введите корректный номер телефона</div>
+        <!-- Упрощенное поле: разрешает вводить только цифры, знаки плюс, минус и скобки -->
+        <input type="tel" id="userPhone" placeholder="+7 (999) 000-00-00" pattern="^[0-9\-\+\(\)\s]{10,18}\$" required>
         <button class="btn-next" onclick="sendLeads()">Получить расчет стоимости</button>
     </div>
 </div>
@@ -77,42 +76,19 @@
         document.getElementById('progress').style.width = (next * 25) + '%';
     }
 
-    // Автоматическая маска для телефона +7 (XXX) XXX-XX-XX
-    const phoneInput = document.getElementById('userPhone');
-    phoneInput.addEventListener('input', function (e) {
-        let matrix = "+7 (___) ___-__-__",
-            i = 0,
-            def = matrix.replace(/\D/g, ""),
-            val = this.value.replace(/\D/g, "");
-        if (def.length >= val.length) val = def;
-        this.value = matrix.replace(/./g, function (a) {
-            return /[_\d]/.test(a) && i < val.length ? val.charAt(i++) : i >= val.length ? "" : a;
-        });
-    });
-
     async function sendLeads() {
         const name = document.getElementById('userName').value.trim();
-        const phone = document.getElementById('userPhone').value;
-        const errorBlock = document.getElementById('errorBlock');
+        const phone = document.getElementById('userPhone').value.trim();
         
-        // Очищаем номер от маски до чистых цифр
-        const cleanPhone = phone.replace(/\D/g, ""); 
-        
-        // Исправлено: проверяем, что в номере ровно 11 цифр и он начинается с 7
-        const isValidPhone = cleanPhone.length === 11 && cleanPhone.startsWith('7');
-
-        if (!name) { 
-            alert('Пожалуйста, введите ваше имя'); 
+        if (!name || !phone) { 
+            alert('Пожалуйста, заполните все поля'); 
             return; 
         }
 
-        if (!isValidPhone) {
-            errorBlock.style.display = 'block';
-            phoneInput.style.borderColor = '#ff4a4a';
+        // Базовая проверка: отсекаем слишком короткие фейковые номера (меньше 10 символов)
+        if (phone.replace(/\D/g, "").length < 10) {
+            alert('Пожалуйста, введите корректный номер телефона');
             return;
-        } else {
-            errorBlock.style.display = 'none';
-            phoneInput.style.borderColor = '#383c5a';
         }
 
         const BOT_TOKEN = '8687633985:AAHN4HtQ4vqYLfA6JYqQIGOVA2WNR1YtFV8'; 
