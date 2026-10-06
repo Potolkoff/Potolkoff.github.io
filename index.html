@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Рассчет стоимости потолка в Казани</title>
+    <title>Расчет стоимости потолка в Казани</title>
     <style>
         :root { --bg: #0d0e12; --card: #161822; --accent: #00f2fe; --text: #ffffff; }
         body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
@@ -18,6 +18,7 @@
         .btn-next { background: var(--accent); color: #000; border: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; }
         .progress { height: 4px; background: #23263a; border-radius: 2px; margin-bottom: 20px; }
         .progress-bar { height: 100%; background: var(--accent); width: 25%; transition: 0.3s; border-radius: 2px; }
+        .error-msg { color: #ff4a4a; font-size: 14px; margin-top: -10px; margin-bottom: 15px; display: none; }
     </style>
 </head>
 <body>
@@ -59,7 +60,8 @@
     <div class="step" id="step4">
         <h2>Расчет готов! Куда прислать смету со скидкой 15%?</h2>
         <input type="text" id="userName" placeholder="Ваше имя" required>
-        <input type="tel" id="userPhone" placeholder="+7 (999) 000-00-00" required>
+        <input type="tel" id="userPhone" placeholder="+7 (999) 000-00-00" maxlength="18" required>
+        <div class="error-msg" id="errorBlock">Введите корректный номер телефона</div>
         <button class="btn-next" onclick="sendLeads()">Получить расчет стоимости</button>
     </div>
 </div>
@@ -75,15 +77,46 @@
         document.getElementById('progress').style.width = (next * 25) + '%';
     }
 
-    async function sendLeads() {
-        const name = document.getElementById('userName').value;
-        const phone = document.getElementById('userPhone').value;
-        
-        if(!name || !phone) { alert('Пожалуйста, заполните поля'); return; }
+    // Автоматическая маска для телефона +7 (XXX) XXX-XX-XX
+    const phoneInput = document.getElementById('userPhone');
+    phoneInput.addEventListener('input', function (e) {
+        let matrix = "+7 (___) ___-__-__",
+            i = 0,
+            def = matrix.replace(/\D/g, ""),
+            val = this.value.replace(/\D/g, "");
+        if (def.length >= val.length) val = def;
+        this.value = matrix.replace(/./g, function (a) {
+            return /[_\d]/.test(a) && i < val.length ? val.charAt(i++) : i >= val.length ? "" : a;
+        });
+    });
 
-        // НАСТРОЙКА TELEGRAM (Замени своими данными)
-        const BOT_TOKEN = 'ТВОЙ_ТОКЕН_БОТА'; 
-        const CHAT_ID = 'ТВОЙ_ID_ЧАТА'; 
+    async function sendLeads() {
+        const name = document.getElementById('userName').value.trim();
+        const phone = document.getElementById('userPhone').value;
+        const errorBlock = document.getElementById('errorBlock');
+        
+        // Очищаем номер от маски до чистых цифр, чтобы проверить валидность
+        const cleanPhone = phone.replace(/\D/g, ""); 
+        
+        // Регулярное выражение: проверяет, что цифр ровно 11, первая 7, а вторая НЕ 0, 1, 2, 5 (защита от фейков)
+        const phoneRegex = /^7[3489]\d{9}\$/;
+
+        if (!name) { 
+            alert('Пожалуйста, введите ваше имя'); 
+            return; 
+        }
+
+        if (!phoneRegex.test(cleanPhone)) {
+            errorBlock.style.display = 'block';
+            phoneInput.style.borderColor = '#ff4a4a';
+            return;
+        } else {
+            errorBlock.style.display = 'none';
+            phoneInput.style.borderColor = '#383c5a';
+        }
+
+        const BOT_TOKEN = '8687633985:AAHN4HtQ4vqYLfA6JYqQIGOVA2WNR1YtFV8'; 
+        const CHAT_ID = '1246645117'; 
         
         const message = `🔥 Новая заявка (Потолки Казань):\n👤 Имя: ${name}\n📞 Тел: ${phone}\n🏢 Тип: ${answers['Шаг 1']}\n💡 Свет: ${answers['Шаг 2']}\n📐 Площадь: ${answers['Шаг 3']}`;
 
